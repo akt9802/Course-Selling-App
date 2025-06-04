@@ -3,19 +3,23 @@
 const express = require('express');
 const app = express();
 
-app.post('/signup',(req,res) => {
+app.post('/user/signup',(req,res) => {
 
 })
 
-app.post('/signin',(req,res) => {
+app.post("/user/signin", (req, res) => {
 
+});
+
+app.get("/user/purchases", (req, res) => {
+
+});
+
+app.post("/user/purchase",(req,res) => {
+    
 })
 
-app.post('/createcourse',(req,res)=> {
-
-})
-
-app.post('/seecourse',(req,res) => {
+app.get('/courses',(req,res) => {
 
 })
 

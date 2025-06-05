@@ -7,7 +7,7 @@ const { configDotenv } = require("dotenv");
 const { z } = require("zod");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const adminMiddleware = require("../middleware/admin.middleware.js");
+const { adminMiddleware } = require("../middleware/admin.middleware.js");
 
 adminRouter.post("/signup", async (req, res) => {
   // lets use ZOD Library here
@@ -19,7 +19,7 @@ adminRouter.post("/signup", async (req, res) => {
   });
 
   const parseDataWithSucess = requiredBody.safeParse(req.body);
-  if (!parseDataWithSucess) {
+  if (!parseDataWithSucess.success) {
     res.json({
       message: "Invalid credentials",
       error: parseDataWithSucess.error,
@@ -59,7 +59,7 @@ adminRouter.post("/signin", async (req, res) => {
     password: z.string(),
   });
   const parseDataWithSucess = requiredBody.safeParse(req.body);
-  if (!parseDataWithSucess) {
+  if (!parseDataWithSucess.success) {
     res.json({
       message: "Invalid credentials !!",
       error: parseDataWithSucess.error,
@@ -109,7 +109,7 @@ adminRouter.post("/signin", async (req, res) => {
   }
 });
 
-// adminRouter.use(adminMiddleware);    >>>>>>>>> We can use admin middleware
+
 
 adminRouter.post("/course", adminMiddleware, async (req, res) => {
   // you can verify using ZOD here also
@@ -121,11 +121,12 @@ adminRouter.post("/course", adminMiddleware, async (req, res) => {
   });
 
   const parseDataWithSucess = requiredBody.safeParse(req.body);
-  if (!parseDataWithSucess) {
+  if (!parseDataWithSucess.success) {
     res.json({
       message: "Invalid credentials !! check everything again",
       error: parseDataWithSucess.error,
     });
+    return ;
   }
   const adminId = req.adminId;
   const { title, description, imageUrl, price } = req.body;
@@ -145,7 +146,7 @@ adminRouter.post("/course", adminMiddleware, async (req, res) => {
   } catch (error) {
     res.json({
       message: "Course not saved Try again !!",
-      error: error,
+      error: error
     });
   }
 });
@@ -159,17 +160,18 @@ adminRouter.put("/course", adminMiddleware ,async (req, res) => {
     });
 
     const parseDataWithSucess = requiredBody.safeParse(req.body);
-    if (!parseDataWithSucess) {
+    if (!parseDataWithSucess.success) {
       res.json({
         message: "Invalid credentials !! check everything again",
         error: parseDataWithSucess.error,
       });
+      return ;
     }
     const adminId = req.adminId;
     const { title, description, imageUrl, price, courseId } = req.body;
 
     try {
-      const course = await courseModel.update({
+      const course = await courseModel.findOneAndUpdate({
         _id : courseId,
         creatorId : adminId,
       },{

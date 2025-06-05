@@ -8,8 +8,9 @@ const userRouter = Router();
 
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken')
-const { userModel } = require("../db");
+const { userModel, purchaseModel } = require("../db");
 const { configDotenv } = require("dotenv");
+const {userMiddleware} = require("../middleware/user.middleware");
 
 
 userRouter.post("/signup" ,async (req, res) => {
@@ -22,7 +23,7 @@ userRouter.post("/signup" ,async (req, res) => {
   });
 
   const parseDataWithSucess = requiredBody.safeParse(req.body);
-  if (!parseDataWithSucess) {
+  if (!parseDataWithSucess.success) {
     res.json({
       message: "Invalid credentials",
       error: parseDataWithSucess.error,
@@ -62,7 +63,7 @@ userRouter.post("/signin",async (req, res) => {
         password : z.string(),
     })
     const parseDataWithSucess = requiredBody.safeParse(req.body);
-    if(!parseDataWithSucess){
+    if(!parseDataWithSucess.success){
         res.json({
             message : "Invalid credentials !!",
             error : parseDataWithSucess.error,
@@ -110,7 +111,19 @@ userRouter.post("/signin",async (req, res) => {
 
 });
 
-userRouter.get("/purchases", (req, res) => {});
+userRouter.get("/purchases", userMiddleware,async (req, res) => {
+  // res.json({ message: "Not implemented yet" });
+  const userId = req.userId;
+  
+  const purchases = await purchaseModel.find({
+    userId,
+  })
+
+  res.json({
+    purchases,
+  })
+
+});
 
 module.exports = {
   userRouter: userRouter,

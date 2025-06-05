@@ -2,8 +2,7 @@ const { default: mongoose, mongo } = require("mongoose");
 
 
 // LETS CONNECT TO THE DATABASE
-require('dotenv').config();
-mongoose.connect(process.env.MONGODB_URI)
+// ----->> do the connection in index.js file
 
 
 // lets describe the schema

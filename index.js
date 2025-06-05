@@ -7,13 +7,18 @@ const { courseRouter } = require("./routes/Course.js");
 const { adminRouter } = require("./routes/Admin.js");
 const app = express();
 
+// MIDDLEWARE
+app.use(express.json())
+
 // necessary for importing the .env variables in this file
 require("dotenv").config();
+
 
 // routing in express is done here !!
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/course", courseRouter);
 app.use("/api/v1/admin", adminRouter);
+
 
 async function main() {
   await mongoose.connect(process.env.MONGODB_URI);

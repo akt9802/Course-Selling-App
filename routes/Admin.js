@@ -1,12 +1,13 @@
 const { Router } = require("express");
 const adminRouter = Router();
 
-const { adminModel } = require("../db.js");
+const { adminModel, courseModel } = require("../db.js");
 const { configDotenv } = require("dotenv");
 
-const { z } = require('zod');
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+const { z } = require("zod");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const adminMiddleware = require("../middleware/admin.middleware.js");
 
 adminRouter.post("/signup", async (req, res) => {
   // lets use ZOD Library here
@@ -110,9 +111,48 @@ adminRouter.post("/signin", async (req, res) => {
 
 // adminRouter.use(adminMiddleware);    >>>>>>>>> We can use admin middleware
 
-adminRouter.post("/course", (req, res) => {});
+adminRouter.post("/course", adminMiddleware, async (req, res) => {
+  // you can verify using ZOD here also
+  const requiredBody = z.object({
+    title: z.string(),
+    description: z.string(),
+    imageUrl: z.string(),
+    price: z.number(),
+  });
 
-adminRouter.put("/course", (req, res) => {});
+  const parseDataWithSucess = requiredBody.safeParse(req.body);
+  if (!parseDataWithSucess) {
+    res.json({
+      message: "Invalid credentials !! check everything again",
+      error: parseDataWithSucess.error,
+    });
+  }
+  const adminId = req.adminId;
+  const { title, description, imageUrl, price } = req.body;
+
+  try {
+    const course = await courseModel.create({
+      title: title,
+      description: description,
+      imageUrl: imageUrl,
+      price: price,
+      creatorId: adminId,
+    });
+    res.json({
+      message: "Course Created !!",
+      courseId: course._id,
+    });
+  } catch (error) {
+    res.json({
+      message: "Course not saved Try again !!",
+      error: error,
+    });
+  }
+});
+
+adminRouter.put("/course", adminMiddleware ,async (req, res) => {
+    
+});
 
 adminRouter.get("/course/bulk", (req, res) => {});
 

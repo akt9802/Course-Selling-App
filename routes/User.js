@@ -12,7 +12,7 @@ const { userModel } = require("../db");
 const { configDotenv } = require("dotenv");
 
 
-userRouter.post("/signup", async (req, res) => {
+userRouter.post("/signup" ,async (req, res) => {
   // lets use ZOD Library here
   const requiredBody = z.object({
     email: z.string().min(3).email(),

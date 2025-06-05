@@ -151,10 +151,56 @@ adminRouter.post("/course", adminMiddleware, async (req, res) => {
 });
 
 adminRouter.put("/course", adminMiddleware ,async (req, res) => {
-    
+    const requiredBody = z.object({
+      title: z.string(),
+      description: z.string(),
+      imageUrl: z.string(),
+      price: z.number(),
+    });
+
+    const parseDataWithSucess = requiredBody.safeParse(req.body);
+    if (!parseDataWithSucess) {
+      res.json({
+        message: "Invalid credentials !! check everything again",
+        error: parseDataWithSucess.error,
+      });
+    }
+    const adminId = req.adminId;
+    const { title, description, imageUrl, price, courseId } = req.body;
+
+    try {
+      const course = await courseModel.update({
+        _id : courseId,
+        creatorId : adminId,
+      },{
+        title: title,
+        description: description,
+        imageUrl: imageUrl,
+        price: price,
+      });
+      res.json({
+        message: "Course Updated !!",
+        courseId: course._id,
+      });
+    } catch (error) {
+      res.json({
+        message: "Course not saved Try again !!",
+        error: error,
+      });
+    }
 });
 
-adminRouter.get("/course/bulk", (req, res) => {});
+adminRouter.get("/course/bulk", adminMiddleware, async (req, res) => {
+    const adminId = req.adminId;
+    const courses = await courseModel.find({
+        creatorId : adminId,
+    })
+    res.json({
+        courses : courses,
+        message : "Here are all the courses of Yours !!"
+    })
+
+});
 
 module.exports = {
   adminRouter: adminRouter,
